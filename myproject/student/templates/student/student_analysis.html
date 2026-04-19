@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Growth Dashboard</title>
+
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --primary: #7dd3fc;
+  --secondary: #a5f3fc;
+  --success: #86efac;
+  --warning: #fde68a;
+  --danger: #fecaca;
+  --bg: #f0f9ff;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg);
+  margin: 0;
+  padding: 30px 20px;
+  color: var(--text-main);
+}
+
+.container { max-width: 1200px; margin:auto; }
+
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+h1 { font-size:24px; margin:0; }
+p.subtitle { color: #64748b; margin-top:4px; }
+
+.btn-print {
+  background: var(--primary);
+  color: #1e293b;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-print:hover { opacity:0.9; }
+
+/* Metrics */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+.card:hover { transform: translateY(-3px); }
+
+.card h3 {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.card p {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-main);
+}
+
+/* Charts */
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.chart-box {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.chart-container { position: relative; height: 300px; width:100%; }
+
+/* Table */
+.table-container {
+  background: var(--card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+}
+
+table { width:100%; border-collapse: collapse; }
+th, td { padding: 14px 20px; }
+th { background:#f0f9ff; font-size:13px; font-weight:600; color:var(--text-muted); text-align:left; }
+td { font-size:14px; border-top:1px solid #f1f5f9; }
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-strong { background: #dcfce7; color:#15803d; }
+.badge-average { background: #fef9c3; color:#854d0e; }
+.badge-weak { background: #fee2e2; color:#b91c1c; }
+
+@media (max-width:900px){
+  .grid-layout { grid-template-columns: 1fr; }
+  .header-flex { flex-direction: column; text-align:center; gap:15px; }
+}
+
+@media print {
+  .btn-print { display:none; }
+  body { padding:0; background:white; }
+  .card, .chart-box { box-shadow:none; border:1px solid #eee; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header-flex">
+    <div>
+      <h1>Hi Student! 👋</h1>
+      <p class="subtitle">Track your progress</p>
+    </div>
+    <button class="btn-print" onclick="window.print()">Download Report</button>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics">
+    <div class="card"><h3>Total Semesters</h3><p id="totalSem">—</p></div>
+    <div class="card"><h3>Overall Avg Marks</h3><p id="avgMarks" style="color:var(--primary)">—</p></div>
+    <div class="card"><h3>Best Semester</h3><p id="bestSem" style="color:var(--success)">—</p></div>
+    <div class="card"><h3>Avg Attendance</h3><p id="avgAttend" style="color:var(--secondary)">—</p></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid-layout">
+    <div class="chart-box">
+      <h3>Semester Growth</h3>
+      <div class="chart-container">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>Subject Performance</h3>
+      <div class="chart-container">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <div style="padding:16px; border-bottom:1px solid #f1f5f9;">
+      <h3 style="margin:0;font-size:16px;">Subject Strength Analysis</h3>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Avg Marks</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="subjectTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const rawData = '{{ df_long|escapejs }}';
+if(rawData){
+  const data = JSON.parse(rawData);
+
+  const semesters = [...new Set(data.map(d => d.Semester))].sort((a,b)=>a-b);
+  let semesterAvg=[], semesterAttend=[];
+
+  semesters.forEach(sem=>{
+    const semData = data.filter(d=>Number(d.Semester)===Number(sem));
+    const avgMarks = semData.reduce((a,b)=>a+Number(b.Marks),0)/semData.length;
+    const avgAttend = semData.reduce((a,b)=>a+Number(b.Attendance),0)/semData.length;
+    semesterAvg.push(avgMarks.toFixed(1));
+    semesterAttend.push(avgAttend.toFixed(1));
+  });
+
+  // Metrics
+  document.getElementById('totalSem').innerText = semesters.length;
+  document.getElementById('avgMarks').innerText = (semesterAvg.reduce((a,b)=>parseFloat(a)+parseFloat(b),0)/semesters.length).toFixed(1) + "%";
+  const maxVal = Math.max(...semesterAvg.map(Number));
+  const bestIndex = semesterAvg.map(Number).indexOf(maxVal);
+  document.getElementById('bestSem').innerText = "Sem " + semesters[bestIndex];
+  const avgAttendVal = (semesterAttend.reduce((a,b)=>parseFloat(a)+parseFloat(b),0)/semesters.length).toFixed(1);
+  document.getElementById('avgAttend').innerText = avgAttendVal;
+
+  // Charts
+  Chart.defaults.font.family="'Plus Jakarta Sans', sans-serif";
+  Chart.defaults.color="#64748b";
+
+  new Chart(document.getElementById('lineChart'),{
+    type:'line',
+    data:{
+      labels: semesters.map(s=>"Sem "+s),
+      datasets:[
+        {label:'Marks', data:semesterAvg, borderColor:'#7dd3fc', backgroundColor:'rgba(125,211,252,0.2)', fill:true, tension:0.4, pointRadius:5},
+        {label:'Attendance', data:semesterAttend, borderColor:'#a5f3fc', backgroundColor:'rgba(165,243,252,0.2)', fill:true, tension:0.4, pointRadius:5}
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{ y:{beginAtZero:true, grid:{color:'#f1f5f9'}}, x:{grid:{display:false}}} }
+  });
+
+  // Subject Table & Bar Chart
+  const subjects = [...new Set(data.map(d=>d.Subject))];
+  let subjectAvg=[];
+  subjects.forEach(sub=>{
+    const subData = data.filter(d=>d.Subject===sub);
+    const avg = subData.reduce((a,b)=>a+Number(b.Marks),0)/subData.length;
+    subjectAvg.push(avg.toFixed(1));
+
+    let statusClass="badge-average", statusText="Average";
+    if(avg>=75){ statusClass="badge-strong"; statusText="Strong"; }
+    else if(avg<50){ statusClass="badge-weak"; statusText="Needs Focus"; }
+
+    document.getElementById('subjectTable').innerHTML += `
+      <tr>
+        <td>${sub}</td>
+        <td>${avg.toFixed(1)}%</td>
+        <td><span class="badge ${statusClass}">${statusText}</span></td>
+      </tr>
+    `;
+  });
+
+  new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{labels:subjects, datasets:[{label:'Avg Marks', data:subjectAvg, backgroundColor:'#7dd3fc', borderRadius:6, barThickness:28}]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true, grid:{color:'#f1f5f9'}}, x:{grid:{display:false}}} }
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Semester Data | Analysis Portal</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --accent-cyan: #0891b2;
+            --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { width: 100%; max-width: 1000px; }
+
+        header { text-align: center; margin-bottom: 3rem; }
+        header h1 { font-size: 2.25rem; font-weight: 800; color: var(--primary-blue); margin-bottom: 0.5rem; }
+        header p { font-size: 1.1rem; color: var(--text-muted); }
+
+        .card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* 1. Form and Upload Area Fixes */
+        .upload-area {
+            position: relative;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 3.5rem 2rem;
+            text-align: center;
+            transition: var(--transition);
+            background: #f8fafc;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover { border-color: var(--accent-cyan); background: #ecfeff; }
+
+        /* 2. Added name="excel_file" and required */
+        .upload-area input[type="file"] {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            opacity: 0; cursor: pointer;
+        }
+
+        .upload-icon {
+            width: 64px; height: 64px;
+            background: #e0f2fe; color: var(--accent-cyan);
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        #file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; width: 100%; padding: 1rem;
+            background: var(--primary-blue); color: white;
+            border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition);
+        }
+
+        .btn-primary:hover { background: #1e40af; transform: translateY(-1px); }
+
+        .instruction-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+        .instruction-list li { position: relative; padding-left: 28px; font-size: 0.95rem; color: var(--text-muted); }
+        .instruction-list li::before { content: "✓"; position: absolute; left: 0; color: var(--accent-cyan); font-weight: bold; }
+
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        
+        /* 3. Link for Download */
+        .btn-outline {
+            text-decoration: none; padding: 0.6rem 1.2rem;
+            border: 2px solid var(--accent-cyan); color: var(--accent-cyan);
+            border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: var(--transition);
+        }
+
+        .table-container { width: 100%; overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: #f1f5f9; color: var(--primary-blue); padding: 1rem; text-align: left; border-bottom: 2px solid var(--border-color); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+
+        @media (max-width: 768px) { .card { padding: 1.5rem; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Upload Semester Data</h1>
+            <p>Upload an Excel file to analyze student performance</p>
+        </header>
+
+        <main>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <section class="card">
+                    <div class="upload-area">
+                        <input type="file" name="excel_file" accept=".xlsx" required onchange="displayFileName(this)">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <h3>Drop your file here or click to browse</h3>
+                        <p>Supported format: <strong>.xlsx</strong></p>
+                        <p id="file-name">No file selected</p>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        Upload & Analyze
+                    </button>
+
+                    {% if message %}
+                        <p style="margin-top:15px; color:#10b981; font-weight: 600; text-align: center;">{{ message }}</p>
+                    {% endif %}
+                    {% if error %}
+                        <p style="margin-top:15px; color:#ef4444; font-weight: 600; text-align: center;">{{ error }}</p>
+                    {% endif %}
+
+                    <ul class="instruction-list">
+                        <li>File must be in <strong>.xlsx</strong> format.</li>
+                        <li>Required: <strong>Name, Roll_No, Attendance</strong>.</li>
+                        <li>Subject columns can be <strong>dynamic</strong>.</li>
+                        <li>Ensure <strong>no empty rows</strong> exist.</li>
+                    </ul>
+                </section>
+            </form>
+
+            <section class="card">
+                <div class="table-header">
+                    <h3 style="color: var(--primary-blue);">Expected Excel Format</h3>
+                    <a href="{% static 'sample/sample.xlsx' %}" download class="btn-outline">
+                        Download Sample Excel
+                    </a>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll_No</th>
+                                <th>Math</th>
+                                <th>Science</th>
+                                <th>English</th>
+                                <th>Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Leandra Dunphie</td>
+                                <td>1</td>
+                                <td>56</td>
+                                <td>51</td>
+                                <td>92</td>
+                                <td>153</td>
+                            </tr>
+                            <tr>
+                                <td>Abagail Lowings</td>
+                                <td>2</td>
+                                <td>45</td>
+                                <td>71</td>
+                                <td>47</td>
+                                <td>75</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function displayFileName(input) {
+            const fileName = input.files[0] ? input.files[0].name : "No file selected";
+            document.getElementById('file-name').textContent = fileName;
+        }
+    </script>
+</body>
+</html>

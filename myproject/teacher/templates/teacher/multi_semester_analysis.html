@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Semester Performance Analysis | Dashboard</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #1e3a8a; 
+            --accent-cyan: #0891b2; 
+            --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+            --white: #ffffff; 
+            --text-main: #1e293b; 
+            --text-muted: #64748b; 
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); padding: 40px 20px; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 3rem; }
+        header h1 { font-size: 2.25rem; font-weight: 800; color: var(--primary-blue); }
+        .back-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn-secondary { text-decoration: none; padding: 0.6rem 1.2rem; background: var(--white); color: var(--primary-blue); border-radius: 8px; font-weight: 600; border: 1px solid var(--primary-blue); transition: 0.3s; }
+        .btn-secondary:hover { background: #eff6ff; }
+        .semester-tabs { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .tab { padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid var(--primary-blue); background: var(--white); cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .tab.active { background: var(--primary-blue); color: white; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .metric-card { background: var(--white); padding: 1.5rem; border-radius: 16px; box-shadow: var(--shadow); text-align: center; border: 1px solid rgba(255,255,255,0.6); }
+        .metric-card h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .metric-card p { font-size: 1.75rem; font-weight: 700; color: var(--accent-cyan); }
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 3rem; }
+        .chart-card { background: var(--white); padding: 2rem; border-radius: 20px; box-shadow: var(--shadow); height: 450px; }
+        .chart-card.wide { grid-column: span 2; }
+        .chart-card h2 { font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--primary-blue); }
+        canvas { width: 100% !important; height: 320px !important; }
+        .table-container { width: 100%; overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { background: #f1f5f9; color: var(--primary-blue); padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 1rem; border-bottom: 1px solid #e2e8f0; }
+        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .chart-card.wide { grid-column: span 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav class="back-nav">
+        <a href="{% url 'teacher:multi_semester' %}" class="btn-secondary">← Back to Upload</a>
+        <button onclick="window.print()" class="btn-secondary">Download Report (PDF)</button>
+    </nav>
+
+    <header>
+        <h1>Multi-Semester Performance Analysis</h1>
+        <p>Visualizing Student Growth and Trends Across Semesters</p>
+    </header>
+
+    {% if error %}
+        <p style="color:red; text-align:center; margin-bottom:20px;">{{ error }}</p>
+    {% endif %}
+
+    {% if df_long %}
+        <!-- Semester Tabs -->
+        <div class="semester-tabs" id="semesterTabs"></div>
+
+        <!-- Metrics Cards -->
+        <section class="metrics-grid" id="metricsGrid"></section>
+
+        <!-- Charts -->
+        <main class="charts-grid">
+            <div class="chart-card wide">
+                <h2>Average Marks per Subject</h2>
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h2>Pass vs Fail Distribution</h2>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h2>Attendance vs Marks Correlation</h2>
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </main>
+
+        <!-- Top Students Table -->
+        <section class="table-container">
+            <h2 style="margin: 1rem 0; color: var(--primary-blue)">Top Students per Semester</h2>
+            <table id="topStudentsTable">
+                <thead>
+                    <tr>
+                        <th>Semester</th>
+                        <th>Student Name</th>
+                        <th>Total Marks</th>
+                        <th>Average Marks</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    {% else %}
+        <p style="text-align:center; margin-top:50px;">Upload an Excel file to see the analysis.</p>
+    {% endif %}
+</div>
+
+{% if df_long %}
+<script>
+const rawData = JSON.parse('{{ df_long|escapejs }}');
+const semesters = [...new Set(rawData.map(d => d.Semester))];
+let activeSemester = semesters[0];
+
+// Calculate metrics per semester
+function calculateMetrics(semester) {
+    const semesterData = rawData.filter(d => d.Semester === semester);
+    const students = [...new Set(semesterData.map(d => d.Roll_No))];
+    const subjects = [...new Set(semesterData.map(d => d.Subject))];
+
+    const studentTotals = students.map(rn => {
+        const sData = semesterData.filter(d => d.Roll_No === rn);
+        const total = sData.reduce((a,b) => a + (b.Marks || 0), 0);
+        const avg = total / (sData.length || 1);
+        const attendance = sData[0]?.Attendance || 0;
+        return {Roll_No: rn, total, avg, attendance, name: sData[0].Name};
+    });
+
+    const totalStudents = students.length;
+    const avgMarks = (studentTotals.reduce((a,b) => a+b.avg,0)/totalStudents).toFixed(1);
+    const maxMarks = Math.max(...studentTotals.map(s => s.total));
+    const minMarks = Math.min(...studentTotals.map(s => s.total));
+    const avgAttendance = (studentTotals.reduce((a,b)=>a+b.attendance,0)/totalStudents).toFixed(1);
+
+    return {studentTotals, totalStudents, avgMarks, maxMarks, minMarks, avgAttendance, subjects};
+}
+
+// Populate semester tabs
+const semesterTabsDiv = document.getElementById('semesterTabs');
+semesters.forEach(s => {
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    if(s === activeSemester) tab.classList.add('active');
+    tab.innerText = 'Semester ' + s;
+    tab.onclick = () => { 
+        activeSemester = s; 
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        updateDashboard();
+    };
+    semesterTabsDiv.appendChild(tab);
+});
+
+// Update metrics, charts, table
+function updateDashboard() {
+    const metrics = calculateMetrics(activeSemester);
+
+    // Metrics
+    const metricsGrid = document.getElementById('metricsGrid');
+    metricsGrid.innerHTML = `
+        <div class="metric-card"><h3>Total Students</h3><p>${metrics.totalStudents}</p></div>
+        <div class="metric-card"><h3>Average Marks</h3><p>${metrics.avgMarks}%</p></div>
+        <div class="metric-card"><h3>Highest Marks</h3><p>${metrics.maxMarks}</p></div>
+        <div class="metric-card"><h3>Lowest Marks</h3><p>${metrics.minMarks}</p></div>
+        <div class="metric-card"><h3>Average Attendance</h3><p>${metrics.avgAttendance}</p></div>
+    `;
+
+    // Bar Chart
+    const subjectAvgs = metrics.subjects.map(sub => {
+        const marks = metrics.studentTotals.flatMap(s => rawData.filter(d=>d.Roll_No===s.Roll_No && d.Subject===sub && d.Semester===activeSemester).map(d=>d.Marks || 0));
+        return (marks.reduce((a,b)=>a+b,0)/(marks.length||1)).toFixed(1);
+    });
+
+    new Chart(document.getElementById('barChart'), {
+        type:'bar',
+        data:{labels:metrics.subjects,datasets:[{label:'Avg Score',data:subjectAvgs,backgroundColor:'rgba(8,145,178,0.7)',borderColor:'#0891b2',borderWidth:2,borderRadius:8}]},
+        options:{responsive:true,maintainAspectRatio:false}
+    });
+
+    // Doughnut
+    const passCount = metrics.studentTotals.filter(s=>s.avg>=30).length;
+    const failCount = metrics.studentTotals.length-passCount;
+
+    new Chart(document.getElementById('pieChart'), {
+        type:'doughnut',
+        data:{labels:['Pass (≥30%)','Fail (<30%)'],datasets:[{data:[passCount,failCount],backgroundColor:['#10b981','#ef4444'],hoverOffset:10}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+    });
+
+    // Scatter
+    const scatterData = metrics.studentTotals.map(s=>({x:s.attendance,y:s.avg}));
+    new Chart(document.getElementById('scatterChart'),{
+        type:'scatter',
+        data:{datasets:[{label:'Students',data:scatterData,backgroundColor:'#1e3a8a',pointRadius:6,pointHoverRadius:8}]},
+        options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Attendance (%)'},min:0},y:{title:{display:true,text:'Avg Marks (%)'},min:0,max:100}}}
+    });
+
+    // Top Students Table
+    const tableBody = document.getElementById('topStudentsTable').querySelector('tbody');
+    tableBody.innerHTML = '';
+    metrics.studentTotals.sort((a,b)=>b.total-a.total).slice(0,10).forEach(s=>{
+        tableBody.innerHTML += `<tr>
+            <td>${activeSemester}</td>
+            <td>${s.name}</td>
+            <td>${s.total}</td>
+            <td>${s.avg.toFixed(1)}</td>
+            <td>${s.attendance}</td>
+        </tr>`;
+    });
+}
+
+// Initialize
+updateDashboard();
+</script>
+{% endif %}
+
+</body>
+</html>

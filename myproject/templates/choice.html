@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Analysis System | Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            --primary-teacher: #4338ca; /* Deep Indigo for Professionalism */
+            --primary-student: #0891b2; /* Cyan for modern feel */
+            --text-main: #102a43;
+            --text-muted: #486581;
+            --white: #ffffff;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 500px;
+        }
+
+        .container {
+            display: flex;
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 950px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            flex: 1;
+            min-width: 320px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Analytics Icon Styling */
+        .icon-wrapper {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .teacher-icon { background-color: #e0e7ff; color: var(--primary-teacher); }
+        .student-icon { background-color: #ecfeff; color: var(--primary-student); }
+
+        .card:hover .teacher-icon { background-color: var(--primary-teacher); color: white; }
+        .card:hover .student-icon { background-color: var(--primary-student); color: white; }
+
+        .card h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+            height: 4.8rem; /* Keeps buttons aligned */
+        }
+
+        /* Modern Action Buttons */
+        .btn {
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 14px;
+            font-weight: 600;
+            width: 100%;
+            transition: var(--transition);
+            font-size: 1.05rem;
+            display: inline-block;
+        }
+
+        .btn-teacher {
+            background-color: var(--primary-teacher);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(67, 56, 202, 0.4);
+        }
+
+        .btn-student {
+            background-color: var(--primary-student);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(8, 145, 178, 0.4);
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        /* Mobile View */
+        @media (max-width: 680px) {
+            header h1 { font-size: 1.8rem; }
+            .container { flex-direction: column; align-items: center; }
+            .card { width: 100%; min-width: unset; padding: 2rem 1.5rem; }
+            .card p { height: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Choose Your Role</h1>
+        <p>Select how you want to use the Performance Analysis System</p>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="icon-wrapper teacher-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="12" y1="2" x2="12" y2="6"/></svg>
+            </div>
+            <h2>Faculty Portal</h2>
+            <p>Upload class-wide Excel files to generate comprehensive trends and performance visualizations.</p>
+            <a href="{% url 'teacher:choose_semester' %}" class="btn btn-teacher">Analyze Class Performance</a>
+        </div>
+
+        <div class="card">
+            <div class="icon-wrapper student-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v6"/><path d="M6 20V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"/><rect x="14" y="6" width="4" height="4"/></svg>
+            </div>
+            <h2>Student Portal</h2>
+            <p>Upload your individual records to visualize your academic growth and identify areas for improvement.</p>
+            <a href="{% url 'student:upload' %}" class="btn btn-student">Analyze My Grades</a>
+        </div>
+    </main>
+
+</body>
+</html>

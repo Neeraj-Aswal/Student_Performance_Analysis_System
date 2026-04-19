@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyze Class Performance | Teacher Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --primary-blue: #1e40af;
+            --accent-cyan: #0891b2;
+            --white: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.025em;
+            color: var(--text-dark);
+        }
+
+        header p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+        }
+
+        main {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .analysis-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 2.5rem;
+            flex: 1;
+            min-width: 320px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: rgba(30, 64, 175, 0.2);
+        }
+
+        .icon-container {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        /* Styling for Single Semester Option */
+        .single-icon { background: #eff6ff; color: var(--primary-blue); }
+        .analysis-card:hover .single-icon { background: var(--primary-blue); color: white; }
+
+        /* Styling for Multiple Semester Option */
+        .multi-icon { background: #ecfeff; color: var(--accent-cyan); }
+        .analysis-card:hover .multi-icon { background: var(--accent-cyan); color: white; }
+
+        .analysis-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .analysis-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            flex-grow: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-single {
+            background-color: var(--primary-blue);
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+        }
+
+        .btn-multi {
+            background-color: var(--accent-cyan);
+            color: white;
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .analysis-card { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Analyze Class Performance</h1>
+        <p>Choose how many semesters you want to analyze</p>
+    </header>
+
+    <main>
+        <section class="analysis-card">
+            <div class="icon-container single-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            </div>
+            <h2>1 Semester</h2>
+            <p>Upload a single Excel file to generate detailed charts, grade distributions, and student rankings for one specific term.</p>
+            <a href="{% url 'teacher:one_semester' %}" class="btn btn-single">Upload 1 Semester File</a>
+        </section>
+
+        <section class="analysis-card">
+            <div class="icon-container multi-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/><path d="M3 3v18h18"/><path d="m7 15 4-4 4 4 5-5"/></svg>
+            </div>
+            <h2>Multiple Semesters</h2>
+            <p>Upload files from multiple semesters to visualize progress trends, growth metrics, and year-over-year performance comparisons.</p>
+            <a href="{% url 'teacher:multi_semester' %}" class="btn btn-multi">Upload Multi-Semester File</a>
+        </section>
+    </main>
+
+</body>
+</html>

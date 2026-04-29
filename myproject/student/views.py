@@ -7,19 +7,19 @@ def student_upload(request):
         file = request.FILES['student_file']
 
         try:
-            # ✅ Handle both CSV and Excel
+            # Handle both CSV and Excel
             if file.name.endswith('.csv'):
                 df = pd.read_csv(file)
             else:
                 df = pd.read_excel(file)
 
-            # ✅ Check empty file
+            # Check empty file
             if df.empty:
                 return render(request, 'student/upload.html', {
                     'error': "Uploaded file is empty."
                 })
 
-            # ✅ Required columns
+            # Required columns
             required_cols = ['Semester', 'Subject', 'Marks', 'Attendance']
             missing_cols = [col for col in required_cols if col not in df.columns]
 
@@ -28,7 +28,7 @@ def student_upload(request):
                     'error': f"Missing columns: {', '.join(missing_cols)}"
                 })
 
-            # ✅ Convert to numeric
+            # Convert to numeric
             df['Marks'] = pd.to_numeric(df['Marks'], errors='coerce')
             df['Attendance'] = pd.to_numeric(df['Attendance'], errors='coerce')
 
@@ -37,10 +37,10 @@ def student_upload(request):
                     'error': "Marks and Attendance must be numeric."
                 })
 
-            # ✅ Convert to JSON
+            # Convert to JSON
             df_json = json.dumps(df.to_dict(orient='records'))
 
-            # ✅ Render ANALYSIS page (IMPORTANT)
+            # Render ANALYSIS page (IMPORTANT)
             return render(request, 'student/student_analysis.html', {
                 'df_long': df_json
             })
@@ -50,5 +50,5 @@ def student_upload(request):
                 'error': f"Error: {str(e)}"
             })
 
-    # ✅ GET request → show upload page
+    # GET request → show upload page
     return render(request, 'student/upload.html')

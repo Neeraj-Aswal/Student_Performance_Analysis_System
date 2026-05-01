@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import pandas as pd
 import json
+from teacher.models import StudentRecord
 
 def choose_semester(request):
     return render(request,'teacher/choose_semester.html')
@@ -46,6 +47,21 @@ def one_semester(request):
 
             # Sort by Marks descending (Top students first)
             student_perf = student_perf.sort_values(by='Marks', ascending=False)
+
+            # DELETE old teacher data (optional)
+            StudentRecord.objects.filter(user=request.user).delete()
+
+            # SAVE TO DATABASE
+            for _, row in df_long.iterrows():
+                StudentRecord.objects.create(
+                    user=request.user,
+                    name=row['Name'],
+                    roll_no=row['Roll_No'],
+                    subject=row['Subject'],
+                    marks=row['Marks'],
+                    attendance=row['Attendance'],
+                    semester=1   # since this is one semester
+                    )
 
             # Serialize to JSON for template
             context = {
@@ -106,6 +122,21 @@ def multi_semester(request):
                 var_name='Subject',
                 value_name='Marks'
             )
+
+            # DELETE old data of same user
+            StudentRecord.objects.filter(user=request.user).delete()
+
+            # SAVE TO DATABASE
+            for _, row in df_long.iterrows():
+                StudentRecord.objects.create(
+                    user=request.user,
+                    name=row['Name'],
+                    roll_no=row['Roll_No'],
+                    subject=row['Subject'],
+                    marks=row['Marks'],
+                    attendance=row['Attendance'],
+                    semester=row['Semester']
+                )
 
             # Convert to JSON for JS
             df_long_json = json.dumps(df_long.to_dict(orient='records'))

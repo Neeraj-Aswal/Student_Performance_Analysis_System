@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Student Analysis System</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --accent: #0891b2;
+            --bg: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            --white: #fff;
+            --text: #1e293b;
+            --muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(8,145,178,0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #1e40af;
+        }
+
+        .extra {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .extra a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            color: green;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                {{ message }}
+            </p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+    </form>
+
+    <div class="extra">
+        Don't have an account? <a href="{% url 'register' %}">Register</a>
+    </div>
+</div>
+
+</body>
+</html>

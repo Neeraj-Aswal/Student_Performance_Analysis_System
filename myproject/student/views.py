@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import pandas as pd
 import json
+from teacher.models import StudentRecord
 
 def student_upload(request):
     if request.method == "POST" and request.FILES.get('student_file'):
@@ -36,7 +37,23 @@ def student_upload(request):
                 return render(request, 'student/upload.html', {
                     'error': "Marks and Attendance must be numeric."
                 })
-
+            
+            # DELETE OLD DATA
+            StudentRecord.objects.filter(
+                user=request.user,
+                semester__in=df['Semester'].unique()
+                ).delete()
+            # SAVE DATA TO DATABASE
+            for _, row in df.iterrows():
+                StudentRecord.objects.create(
+                    user=request.user,
+                    name=request.user.username,   # student name
+                    roll_no=0,                    # you can improve later
+                    subject=row['Subject'],
+                    marks=row['Marks'],
+                    attendance=row['Attendance'],
+                    semester=row['Semester']
+                )
             # Convert to JSON
             df_json = json.dumps(df.to_dict(orient='records'))
 

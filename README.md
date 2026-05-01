@@ -1,121 +1,158 @@
 # 📊 Student Performance Analysis System
 
-A Django-based web application for analyzing student academic performance. The system allows both students and teachers to upload and analyze Excel data, generating insights for single or multiple semesters.
+A full-stack Django web application designed to analyze and visualize student academic performance. The system supports both students and teachers, enabling Excel-based data upload, insightful analytics, and persistent storage using a database.
 
 ---
 
 ## 🚀 Features
 
-* 📁 Upload Excel files for analysis
-* 👨‍🎓 Student performance insights
-* 👩‍🏫 Teacher dashboard for multi-semester analysis
-* 📊 Data visualization and reporting
-* 🌐 Clean UI with static assets (CSS, JS, images)
+### 🔐 Authentication System
+- User Registration & Login
+- Secure session handling
+- Role-based usage (Student / Teacher)
+
+### 👨‍🎓 Student Module
+- Upload personal academic data
+- Analyze subject-wise performance
+- Track attendance vs marks
+
+### 👩‍🏫 Teacher Module
+- Upload class Excel data
+- One Semester Analysis
+- Multi-Semester Comparison
+- Top performers & insights
+
+### 📊 Data Visualization
+- Bar Charts (subject performance)
+- Pie Charts (pass/fail ratio)
+- Scatter Plots (attendance vs marks)
+
+### 💾 Database Integration
+- Stores uploaded student & teacher data
+- Data linked to logged-in users
+- Prevents duplicate entries
 
 ---
 
 ## 🛠️ Tech Stack
-Backend: Django (Python)
-Frontend: HTML, CSS, JavaScript
-Charts & Visualization: Chart.js
-Database: SQLite
-Libraries: pandas, numpy (for data processing)
+
+Backend: Django (Python)  
+Frontend: HTML, CSS, JavaScript  
+Charts: Chart.js  
+Database: SQLite  
+Libraries: pandas, openpyxl  
 
 ---
 
 ## 📂 Project Structure
 
-```
-mini project/
+mini-project/
 ├── myproject/
-│   ├── db.sqlite3
 │   ├── manage.py
-│   ├── myproject/        # Django settings & configs
-│   ├── static/           # CSS, JS, images, sample Excel files
-│   ├── student/          # Student app
-│   ├── teacher/          # Teacher app
-│   └── templates/        # Base templates
-```
+│   ├── db.sqlite3 (ignored in Git)
+│   ├── myproject/        # Settings & URLs
+│   ├── accounts/         # Login & Register system
+│   ├── student/          # Student module
+│   ├── teacher/          # Teacher module
+│   ├── static/           # CSS, JS, images
+│   └── templates/        # HTML templates
 
 ---
 
 ## ⚙️ Installation
 
-### 1. Clone the repository
-
-```bash
-git clone <your-repo-url>
-cd mini-project
-```
-
-### 2. Create virtual environment
-
-```bash
-python -m venv .venv
-```
-
-### 3. Activate virtual environment
-
-**Windows:**
-
-```bash
-.venv\Scripts\activate
-```
-
-**Mac/Linux:**
-
-```bash
-source .venv/bin/activate
-```
-
-### 4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
+### 1. Clone Repository
+git clone <your-repo-url>  
+cd mini-project  
 
 ---
 
-## ▶️ Running the Project
+### 2. Create Virtual Environment
+python -m venv venv  
 
-```bash
-cd myproject
-python manage.py runserver
-```
+---
+
+### 3. Activate Environment
+
+Windows:
+venv\Scripts\activate  
+
+Mac/Linux:
+source venv/bin/activate  
+
+---
+
+### 4. Install Dependencies
+pip install django pandas openpyxl  
+
+---
+
+### 5. Run Migrations
+python manage.py makemigrations  
+python manage.py migrate  
+
+---
+
+### 6. Create Superuser (Admin Access)
+python manage.py createsuperuser  
+
+---
+
+### 7. Run Server
+python manage.py runserver  
 
 Open in browser:
-
-```
-http://127.0.0.1:8000/
-```
+http://127.0.0.1:8000/  
 
 ---
 
-## 📊 Usage
+## 📊 Usage Flow
 
-* Students can upload Excel files to view performance analysis
-* Teachers can:
+1. Open Homepage  
+2. Click Get Started  
+3. Login / Register  
+4. Choose Role:
+   - Teacher → Upload class data  
+   - Student → Upload personal data  
+5. View performance dashboard  
 
-  * Analyze single semester data
-  * Compare multiple semesters
-* Sample Excel files are available in:
+---
 
-```
-static/sample/
-```
+## 📁 Sample Data
+
+Available in:
+static/sample/  
+
+---
+
+## 🔐 Admin Panel
+
+Access:
+http://127.0.0.1:8000/admin/  
+
+Manage:
+- Users  
+- Student Records  
+
+---
+
+## ⚠️ Important Notes
+
+- .gitignore excludes:
+  - db.sqlite3  
+  - venv/  
+  - media/  
+
+- Ensure Excel format matches required columns  
+
+---
 
 ## 🤝 Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you’d like to change.
+Pull requests are welcome. For major updates, open an issue first.
 
 ---
 
 ## 📄 License
 
-This project is for educational purposes.
-
----
-
-## 📧 Contact
-
-For queries or suggestions, feel free to reach out.
+This project is developed for educational purposes.

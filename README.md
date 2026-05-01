@@ -46,18 +46,44 @@ Libraries: pandas, openpyxl
 
 ## 📂 Project Structure
 
+```
 mini-project/
+│
 ├── myproject/
 │   ├── manage.py
-│   ├── db.sqlite3 (ignored in Git)
-│   ├── myproject/        # Settings & URLs
-│   ├── accounts/         # Login & Register system
+│   ├── db.sqlite3        (ignored in Git)
+│   │
+│   ├── myproject/        # Main project settings
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── ...
+│   │
+│   ├── accounts/         # Authentication (Login/Register)
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   └── templates/
+│   │
 │   ├── student/          # Student module
+│   │   ├── views.py
+│   │   └── templates/
+│   │
 │   ├── teacher/          # Teacher module
-│   ├── static/           # CSS, JS, images
-│   └── templates/        # HTML templates
-
----
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── admin.py
+│   │   └── migrations/
+│   │
+│   ├── templates/        # Global templates (landing page etc.)
+│   │
+│   ├── static/           # CSS, JS, images, sample files
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── images/
+│   │
+│   └── media/            # Uploaded files (ignored in Git)
+│
+└── README.md
+```
 
 ## ⚙️ Installation
 
